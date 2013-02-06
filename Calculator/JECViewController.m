@@ -177,19 +177,30 @@ int parensBalance = 0;
 
 - (IBAction)decimalPressed:(UIButton *)sender {
     if(resultOnScreen){
-        [input setString: @""];
+        [input setString: @"0"];
         resultOnScreen = false;
+        decimal = true;
+        digits = true;
     }
     int length = [input length];
+    if(length == 0){
+        [input appendString:@"0"];
+        [input appendString:@"."];
+        self.Digits.text = input;
+        rightParens = true;
+        operand = true;
+        digits = true;
+        leftParens = false;
+        decimal = false;
+    }
     if(length < 19 && decimal && digits){
-        if([input length]==0){
-            [input appendString:@"0."];
-        }
-        else if([self isOperator:[input characterAtIndex:length -1]]){
-            [input appendString:@"0."];}
+        if([self isOperator:[input characterAtIndex:length -1]]){
+            [input appendString:@"0"];
+            [input appendString:@"."];}
         else{
             [input appendString:@"."];
         }
+    
         self.Digits.text = input;
         rightParens = true;
         operand = true;
@@ -376,7 +387,7 @@ int parensBalance = 0;
     }
     rightParens = false;
     operand = true;
-    decimal = false;
+    decimal = true;
     digits = true;
     leftParens = false;
     decimal = false;
