@@ -24,6 +24,7 @@ bool leftParens;
 bool rightParens;
 bool divisionByZero = false;
 bool resultOnScreen = false;
+bool minusSign = true;
 //check if parens are balanced, should equal 0 at the end
 int parensBalance = 0;
 
@@ -117,11 +118,11 @@ int parensBalance = 0;
         rightParens = true;
         operand = true;
         digits = true;
-        
+        minusSign = false;
     }
 }
 
--(void) operandPressed:(NSString *)type{
+-(void) operatorPressed:(NSString *)type{
     resultOnScreen = false;
     int length = [input length];
     if(length < 18 && operand){
@@ -132,6 +133,7 @@ int parensBalance = 0;
         rightParens = false;
         digits = true;
         decimal = true;
+        minusSign = true;
     }
 }
 
@@ -200,7 +202,7 @@ int parensBalance = 0;
         else{
             [input appendString:@"."];
         }
-    
+        minusSign = false;
         self.Digits.text = input;
         rightParens = true;
         operand = true;
@@ -216,29 +218,39 @@ int parensBalance = 0;
     decimal = true;
     digits = true;
     leftParens = true;
+    minusSign = true;
     parensBalance = 0;
     input = [NSMutableString stringWithString: initial];
     self.Digits.text = clear;
 }
 
 - (IBAction)divideButton:(UIButton *)sender {
-    [self operandPressed:@"/"];
+    [self operatorPressed:@"/"];
 }
 
 - (IBAction)plusPressed:(UIButton *)sender {
-    [self operandPressed:@"+"];
+    [self operatorPressed:@"+"];
 }
 
 - (IBAction)multPressed:(UIButton *)sender {
-    [self operandPressed:@"*"];
+    [self operatorPressed:@"*"];
 }
 
 - (IBAction)subPressed:(UIButton *)sender {
-   [self operandPressed:@"-"];
+    int length = [input length];
+    if(length == 0){
+        
+    }
+    else if (minusSign){
+        [input appendFormat:@"-"];
+        minusSign = false;
+        self.Digits.text = input;
+    }
+   [self operatorPressed:@"-"];
 }
 
 - (IBAction)expPressed:(UIButton *)sender {
-    [self operandPressed:@"^"];
+    [self operatorPressed:@"^"];
 }
 - (IBAction)lParensPressed:(UIButton *)sender {
     if(resultOnScreen){
@@ -254,6 +266,7 @@ int parensBalance = 0;
         decimal = true;
         digits = true;
         leftParens = true;
+        minusSign = true;
         parensBalance++;
     }
 }
@@ -265,6 +278,7 @@ int parensBalance = 0;
         operand = true;
         digits = false;
         leftParens = false;
+        minusSign = false;
         parensBalance--;
     }
 }
@@ -286,26 +300,23 @@ int parensBalance = 0;
               range = NSMakeRange(tracker, i-tracker);     
             }
         NSString *term = [input substringWithRange:range];
-            tracker = i + 1;
+            
             [operations addObject:term];
             if(operator){
                 range = NSMakeRange(i, 1);
                 term = [input substringWithRange:range];
                 [operations addObject:term];
             }
+            if(i < length - 1){
+                tracker = i + 1;
+                if([input characterAtIndex:tracker]=='-'){
+                    i++;
+                }
+            }
         }
     }
     return operations;
     
-}
-
-//truncates exponent
--(int) take:(double) base toExponent:(int) exponent{
-    int returnVal = 1;
-    for(int i = 0; i < exponent; i++){
-        returnVal = returnVal * base;
-    }
-    return returnVal;
 }
 
 -(void) resolveMutableArray:(NSMutableArray *)input byOperatorType:(NSString*) operatorType{
@@ -337,7 +348,7 @@ int parensBalance = 0;
             divisionByZero = true;
             return;
         }
-        result = [self take:operand1 toExponent:operand2];
+        result = pow(operand1,operand2);
     }
     else{
         return;
@@ -383,6 +394,9 @@ int parensBalance = 0;
 
 - (IBAction)enterPressed:(UIButton *)sender {
     int length = [input length];
+    if(length == 0){
+        return;
+    }
     if([self isOperator:[input characterAtIndex:length - 1]]){
         return;
     }
