@@ -382,7 +382,14 @@ int parensBalance = 0;
 }
 
 - (IBAction)enterPressed:(UIButton *)sender {
-    if(resultOnScreen){
+    int length = [input length];
+    if([self isOperator:[input characterAtIndex:length - 1]]){
+        return;
+    }
+    if(resultOnScreen || length == 0){
+        return;
+    }
+    if([self isOperator:@"("]){
         return;
     }
     rightParens = false;
